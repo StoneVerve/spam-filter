@@ -1,1 +1,1 @@
-__all__ = ['bernoulli_filter']
+__all__ = ['nbayes_filter', 'bernoulli_filter', 'multinomial_filter']
