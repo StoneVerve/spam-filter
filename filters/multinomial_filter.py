@@ -13,6 +13,7 @@ class MultinomialFilter(NBayesFilter):
     def train_model(self, train_messages: List[Message]):
         ham_messages = []
         spam_messages = []
+        num_messages = len(train_messages)
         total_words_spam = 0
         total_words_ham = 0
         for m in train_messages:
@@ -24,10 +25,8 @@ class MultinomialFilter(NBayesFilter):
                 ham_messages.append(m)
         num_spam_messages = len(spam_messages)
         num_ham_messages = len(ham_messages)
-        print("num_spam_messages:", num_spam_messages)
-        print("num_ham_messages:", num_ham_messages)
-        self.prob_spam = log(num_spam_messages) - log(len(train_messages))
-        self.prob_ham = log(num_ham_messages) - log(len(train_messages))
+        self.prob_spam = log(num_spam_messages) - log(num_messages)
+        self.prob_ham = log(num_ham_messages) - log(num_messages)
         self.prob_words_spam = self.calculate_words_probabilities(spam_messages)
         self.prob_words_ham = self.calculate_words_probabilities(ham_messages)
         self.default_prob_word_spam = 0.0 - log(total_words_spam)
@@ -37,7 +36,8 @@ class MultinomialFilter(NBayesFilter):
         occurrences_in_messages = 0
         total_words = 0
         for message in messages:
-            total_words += message.number_of_words() + self.alpha
+            total_words += message.number_of_words()
             if message.is_word_in_message(word):
                 occurrences_in_messages += message.word_frequency(word)
-        return log(occurrences_in_messages + self.alpha) - log(total_words)
+        return (log(occurrences_in_messages + self.alpha) -
+                log(total_words + len(messages) * self.alpha))

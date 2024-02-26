@@ -8,19 +8,13 @@ from filters.nbayes_filter import NBayesFilter
 class BernoulliFilter(NBayesFilter):
 
     def train_model(self, train_messages: List[Message]):
-        ham_messages = []
-        spam_messages = []
-        for m in train_messages:
-            if m.is_spam():
-                spam_messages.append(m)
-            else:
-                ham_messages.append(m)
+        ham_messages = [m for m in train_messages if not m.is_spam()]
+        spam_messages = [m for m in train_messages if m.is_spam()]
+        num_messages = len(train_messages)
         num_spam_messages = len(spam_messages)
         num_ham_messages = len(ham_messages)
-        print("num_spam_messages:", num_spam_messages)
-        print("num_ham_messages:", num_ham_messages)
-        self.prob_spam = log(num_spam_messages) - log(len(train_messages))
-        self.prob_ham = log(num_ham_messages) - log(len(train_messages))
+        self.prob_spam = log(num_spam_messages) - log(num_messages)
+        self.prob_ham = log(num_ham_messages) - log(num_messages)
         self.prob_words_spam = self.calculate_words_probabilities(spam_messages)
         self.prob_words_ham = self.calculate_words_probabilities(ham_messages)
         self.default_prob_word_spam = 0.0 - log(num_spam_messages + 2)
